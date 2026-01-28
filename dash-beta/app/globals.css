@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+:root {
+  /* Colors - refined modern palette */
+  --background: #f8fafc;
+  --foreground: #1e293b;
+  --primary: #5749f4;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #475569;
+  --muted: #f1f5f9;
+  --muted-foreground: #94a3b8;
+  --border: #e2e8f0;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+  --sidebar: #ffffff;
+  --sidebar-border: #e2e8f0;
+
+  /* Semantic colors */
+  --success: #22c55e;
+  --success-bg: #dcfce7;
+  --warning: #f97316;
+  --warning-bg: #fff7ed;
+  --error: #ef4444;
+  --error-bg: #fee2e2;
+  --info: #3b82f6;
+  --info-bg: #dbeafe;
+
+  /* Funnel colors */
+  --funnel-1: #f8f5ff;
+  --funnel-2: #ede9fe;
+  --funnel-3: #5749f4;
+
+  /* Radius - softer corners */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* Shadows - subtle depth */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+}
+
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes animate-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out-to-left {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-soft {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@layer base {
+
+  html,
+  body {
+    height: 100%;
+    background-color: var(--background);
+  }
+
+  .font-inter {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+  }
+
+  /* Radix animation classes */
+  .animate-in {
+    animation: animate-in 0.2s ease-out;
+  }
+
+  .animate-out {
+    animation: animate-out 0.2s ease-in;
+  }
+
+  .fade-in-0 {
+    animation: fade-in 0.2s ease-out;
+  }
+
+  .fade-out-0 {
+    animation: fade-out 0.2s ease-in;
+  }
+
+  .slide-in-from-left {
+    animation: slide-in-from-left 0.3s ease-out;
+  }
+
+  .slide-out-to-left {
+    animation: slide-out-to-left 0.3s ease-in;
+  }
+
+  .zoom-in-95 {
+    animation: animate-in 0.2s ease-out;
+  }
+
+  .zoom-out-95 {
+    animation: animate-out 0.2s ease-in;
+  }
+
+  .pulse-soft {
+    animation: pulse-soft 2s ease-in-out infinite;
+  }
+}

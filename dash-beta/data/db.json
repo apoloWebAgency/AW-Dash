@@ -1,0 +1,156 @@
+{
+  "user": {
+    "name": "Admin User",
+    "role": "Administrator",
+    "initials": "AD"
+  },
+  "stats": {
+    "iaActive": true,
+    "newLeadsCount": 5,
+    "newSalesCount": 2
+  },
+  "alerts": [
+    {
+      "id": "alert-1",
+      "type": "lead",
+      "title": "Nuevo Lead Detectado",
+      "subtitle": "Vía WhatsApp • Hace 2 min",
+      "timeAgo": "2 min",
+      "actionLabel": "Ver"
+    },
+    {
+      "id": "alert-2",
+      "type": "sale",
+      "title": "Nueva Venta Realizada",
+      "subtitle": "Monto: $450.00",
+      "value": "$450.00",
+      "timeAgo": "5 min",
+      "actionLabel": "Detalle"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "metric-1",
+      "category": "CRECIMIENTO",
+      "title": "Leads",
+      "value": "15",
+      "trend": "+8% vs periodo anterior",
+      "trendDirection": "up",
+      "iconType": "users"
+    },
+    {
+      "id": "metric-2",
+      "category": "CONVERSIÓN",
+      "title": "Clientes nuevos",
+      "value": "173",
+      "subtitle": "Goal: 200",
+      "goal": 200,
+      "progress": 86,
+      "iconType": "user-plus"
+    },
+    {
+      "id": "metric-3",
+      "category": "INGRESOS",
+      "title": "Ventas por link",
+      "value": "$2,300",
+      "subtitle": "∞ Vía WhatsApp",
+      "iconType": "link"
+    }
+  ],
+  "funnel": {
+    "stages": [
+      {
+        "id": "stage-1",
+        "label": "CONSULTAS",
+        "value": "2,450",
+        "raw_value": 2450,
+        "variant": "light"
+      },
+      {
+        "id": "stage-2",
+        "label": "INTERACCIONES",
+        "value": "1,102",
+        "raw_value": 1102,
+        "variant": "medium"
+      },
+      {
+        "id": "stage-3",
+        "label": "VENTAS",
+        "value": "132",
+        "raw_value": 132,
+        "variant": "dark"
+      }
+    ],
+    "connectors": [
+      { "percentage": "45%" },
+      { "percentage": "12%" }
+    ]
+  },
+  "products": [
+    {
+      "id": "prod-1",
+      "name": "Plan Básico",
+      "subtitle": "28 consultas directas",
+      "percentage": "24%",
+      "trendColor": "success",
+      "isHot": false,
+      "iconType": "gift"
+    },
+    {
+      "id": "prod-2",
+      "name": "Curso Avanzado",
+      "subtitle": "18 consultas directas",
+      "percentage": "12%",
+      "trendColor": "warning",
+      "isHot": true,
+      "iconType": "flame"
+    },
+    {
+      "id": "prod-3",
+      "name": "Premium Membership",
+      "subtitle": "10 consultas directas",
+      "percentage": "5%",
+      "trendColor": "error",
+      "isHot": false,
+      "iconType": "award"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "apt-1",
+      "initials": "SM",
+      "name": "Sofia Martinez",
+      "time": "10:00 AM",
+      "service": "Consulta Inicial",
+      "status": "confirmed",
+      "avatarColor": "bg-gradient-to-br from-violet-500 to-purple-600"
+    },
+    {
+      "id": "apt-2",
+      "initials": "PG",
+      "name": "Pablo Gómez",
+      "time": "02:30 PM",
+      "service": "Seguimiento",
+      "status": "pending",
+      "avatarColor": "bg-gradient-to-br from-blue-500 to-cyan-600"
+    }
+  ],
+  "recentActivity": [
+    {
+      "id": "act-1",
+      "type": "lead",
+      "title": "Nuevo Lead por WhatsApp",
+      "time": "Hace 2 min",
+      "description": "\"Hola, me gustaría saber precios del plan premium...\"",
+      "tags": ["Atendido por IA", "Intención: Compra"]
+    },
+    {
+      "id": "act-2",
+      "type": "sale",
+      "title": "Venta Realizada via Link",
+      "time": "Hace 15 min",
+      "amount": "$150.00",
+      "badge": "Pago Exitoso"
+    }
+  ]
+}

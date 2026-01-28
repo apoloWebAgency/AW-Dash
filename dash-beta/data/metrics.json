@@ -1,0 +1,56 @@
+[
+    {
+        "id": "metric-1",
+        "category": "CRECIMIENTO",
+        "title": "Leads",
+        "iconType": "users",
+        "data": {
+            "today": {
+                "value": "15",
+                "trend": "+8% vs periodo anterior",
+                "trendDirection": "up"
+            },
+            "month": {
+                "value": "450",
+                "trend": "+12% vs periodo anterior",
+                "trendDirection": "up"
+            }
+        }
+    },
+    {
+        "id": "metric-2",
+        "category": "CONVERSIÓN",
+        "title": "Clientes nuevos",
+        "iconType": "user-plus",
+        "data": {
+            "today": {
+                "value": "173",
+                "subtitle": "Goal: 200",
+                "goal": 200,
+                "progress": 86
+            },
+            "month": {
+                "value": "5,200",
+                "subtitle": "Goal: 6,000",
+                "goal": 6000,
+                "progress": 87
+            }
+        }
+    },
+    {
+        "id": "metric-3",
+        "category": "INGRESOS",
+        "title": "Ventas por link",
+        "iconType": "link",
+        "data": {
+            "today": {
+                "value": "$2,300",
+                "subtitle": "∞ Vía WhatsApp"
+            },
+            "month": {
+                "value": "$68,500",
+                "subtitle": "∞ Vía WhatsApp"
+            }
+        }
+    }
+]
