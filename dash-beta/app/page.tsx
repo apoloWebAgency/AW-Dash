@@ -29,8 +29,8 @@ export default async function Home() {
           </h1>
 
           <div className="flex flex-col gap-6 xl:flex-row">
-            {/* Left Column */}
-            <div className="flex flex-1 flex-col gap-6">
+            {/* Left Column - 20% wider */}
+            <div className="flex flex-[2] flex-col gap-4">
               {/* Top: Growth + Conversion */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {growthMetric && <MetricCard metric={growthMetric} />}
@@ -38,7 +38,7 @@ export default async function Home() {
               </div>
 
               {/* Middle: Conversion Funnel + Revenue */}
-              <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                 <ConversionFunnel funnel={data.funnel} />
                 {revenueMetric && <MetricCard metric={revenueMetric} />}
               </div>

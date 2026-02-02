@@ -27,19 +27,19 @@ function FunnelStage({ stage }: FunnelStageProps) {
     };
 
     return (
-        <div className="flex flex-1 flex-col items-center gap-3">
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-3">
             <div
                 className={cn(
-                    "flex w-full items-center justify-center rounded-xl transition-all duration-300",
+                    "flex w-full min-w-0 items-center justify-center rounded-xl transition-all duration-300",
                     styles[stage.variant],
                     heights[stage.variant]
                 )}
             >
-                <span className="text-xl font-semibold tracking-tight sm:text-2xl">
+                <span className="truncate text-lg font-semibold tracking-tight sm:text-xl lg:text-2xl">
                     {stage.value}
                 </span>
             </div>
-            <span className="text-center text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[11px]">
+            <span className="truncate text-center text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[11px]">
                 {stage.label}
             </span>
         </div>
@@ -71,14 +71,14 @@ export function ConversionFunnel({ funnel }: ConversionFunnelProps) {
     // Assuming stages.length === connectors.length + 1
 
     return (
-        <Card className="flex flex-col p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] sm:p-6">
+        <Card className="flex min-w-0 flex-col overflow-hidden p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] sm:p-6">
             <h2 className="text-[15px] font-semibold text-[var(--card-foreground)] sm:text-base">
                 Embudo de Conversión
             </h2>
 
-            <div className="mt-4 flex items-end gap-1 sm:gap-2">
+            <div className="mt-4 flex min-w-0 items-end gap-1 sm:gap-2">
                 {stages.map((stage, index) => (
-                    <div key={stage.id} className="contents">
+                    <div key={stage.id} className="contents min-w-0">
                         <FunnelStage stage={stage} />
                         {index < connectors.length && (
                             <PercentageConnector percentage={connectors[index].percentage} />
