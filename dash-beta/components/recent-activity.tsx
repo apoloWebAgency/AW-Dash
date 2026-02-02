@@ -106,7 +106,7 @@ function ActivityCard({ item, isLast }: { item: ActivityItem; isLast: boolean })
 export function RecentActivity({ activity }: RecentActivityProps) {
     return (
         <TooltipProvider>
-            <Card className="flex flex-col overflow-hidden p-0 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] xl:flex-1">
+            <Card className="flex h-full flex-col overflow-hidden p-0 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)]">
                 {/* Header */}
                 <div className="flex items-start justify-between border-b border-[var(--border)] bg-gradient-to-r from-[var(--card)] to-[var(--muted)]/30 p-5 sm:p-6">
                     <div>

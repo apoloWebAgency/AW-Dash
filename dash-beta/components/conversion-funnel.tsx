@@ -21,9 +21,9 @@ function FunnelStage({ stage }: FunnelStageProps) {
     };
 
     const heights = {
-        light: "h-24 sm:h-28 lg:h-32",
-        medium: "h-20 sm:h-24 lg:h-28",
-        dark: "h-16 sm:h-20 lg:h-24",
+        light: "h-16 sm:h-20",
+        medium: "h-14 sm:h-18",
+        dark: "h-12 sm:h-16",
     };
 
     return (
@@ -35,7 +35,7 @@ function FunnelStage({ stage }: FunnelStageProps) {
                     heights[stage.variant]
                 )}
             >
-                <span className="text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl">
+                <span className="text-xl font-semibold tracking-tight sm:text-2xl">
                     {stage.value}
                 </span>
             </div>
@@ -52,14 +52,14 @@ interface PercentageConnectorProps {
 
 function PercentageConnector({ percentage }: PercentageConnectorProps) {
     return (
-        <div className="flex flex-col items-center justify-end self-stretch pb-8 sm:pb-10">
+        <div className="flex flex-col items-center justify-end self-stretch pb-4 sm:pb-6">
             <Badge
                 variant="success"
-                className="z-10 mb-2 px-2.5 py-1 text-[11px] font-semibold shadow-sm"
+                className="z-10 mb-1.5 px-2 py-0.5 text-[10px] font-semibold shadow-sm"
             >
                 {percentage}
             </Badge>
-            <div className="h-14 w-px bg-gradient-to-b from-[var(--success)] to-[var(--border)] sm:h-18 lg:h-20" />
+            <div className="h-10 w-px bg-gradient-to-b from-[var(--success)] to-[var(--border)] sm:h-12" />
         </div>
     );
 }
@@ -71,12 +71,12 @@ export function ConversionFunnel({ funnel }: ConversionFunnelProps) {
     // Assuming stages.length === connectors.length + 1
 
     return (
-        <Card className="flex flex-col p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] sm:p-6 xl:flex-[2]">
+        <Card className="flex flex-col p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] sm:p-6">
             <h2 className="text-[15px] font-semibold text-[var(--card-foreground)] sm:text-base">
                 Embudo de Conversión
             </h2>
 
-            <div className="mt-8 flex items-end gap-1 sm:mt-10 sm:gap-2">
+            <div className="mt-4 flex items-end gap-1 sm:gap-2">
                 {stages.map((stage, index) => (
                     <div key={stage.id} className="contents">
                         <FunnelStage stage={stage} />

@@ -53,7 +53,7 @@ function ProductItem({ product }: ProductItemProps) {
 
 export function ProductPerformance({ products }: ProductPerformanceProps) {
     return (
-        <Card className="flex flex-col p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] sm:p-6 xl:flex-1">
+        <Card className="flex h-full flex-col p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] sm:p-6">
             <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-[15px] font-semibold text-[var(--card-foreground)] sm:text-base">
                     Product Performance
