@@ -7,7 +7,7 @@ import { useState, useEffect, useTransition } from "react";
 import { getMetricData } from "@/lib/actions";
 import { MetricData } from "@/types/metrics";
 
-function MetricCard({ metric }: { metric: MetricData }) {
+export function MetricCard({ metric }: { metric: MetricData }) {
     const [period, setPeriod] = useState<"today" | "month">("today");
     const [isPending, startTransition] = useTransition();
 

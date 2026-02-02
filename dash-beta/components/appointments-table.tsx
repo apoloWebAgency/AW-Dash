@@ -144,7 +144,7 @@ function AppointmentCard({ apt }: { apt: Appointment }) {
 
 export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
     return (
-        <Card className="flex flex-col overflow-hidden p-0 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] xl:flex-[2]">
+        <Card className="flex flex-col overflow-hidden p-0 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)]">
             {/* Header */}
             <div className="flex flex-col gap-4 border-b border-[var(--border)] bg-gradient-to-r from-[var(--card)] to-[var(--muted)]/30 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                 <div>
