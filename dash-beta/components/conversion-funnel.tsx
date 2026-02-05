@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,8 @@ interface FunnelStageProps {
     stage: FunnelStageType;
 }
 
+type Period = "hoy" | "semana" | "mes";
+
 function FunnelStage({ stage }: FunnelStageProps) {
     const styles = {
         light: "bg-[#f8f5ff] text-[var(--primary)]",
@@ -20,26 +23,19 @@ function FunnelStage({ stage }: FunnelStageProps) {
         dark: "bg-[var(--primary)] text-white",
     };
 
-    const heights = {
-        light: "h-16 sm:h-20",
-        medium: "h-14 sm:h-18",
-        dark: "h-12 sm:h-16",
-    };
-
     return (
-        <div className="flex min-w-0 flex-1 flex-col items-center gap-3">
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-2">
             <div
                 className={cn(
-                    "flex w-full min-w-0 items-center justify-center rounded-xl transition-all duration-300",
-                    styles[stage.variant],
-                    heights[stage.variant]
+                    "flex w-full items-center justify-center rounded-xl px-2 py-4 transition-all duration-300",
+                    styles[stage.variant]
                 )}
             >
-                <span className="truncate text-lg font-semibold tracking-tight sm:text-xl lg:text-2xl">
+                <span className="text-base font-bold tabular-nums sm:text-lg md:text-xl">
                     {stage.value}
                 </span>
             </div>
-            <span className="truncate text-center text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[11px]">
+            <span className="text-center text-[9px] font-semibold uppercase tracking-wide text-[var(--muted-foreground)] sm:text-[10px]">
                 {stage.label}
             </span>
         </div>
@@ -52,33 +48,69 @@ interface PercentageConnectorProps {
 
 function PercentageConnector({ percentage }: PercentageConnectorProps) {
     return (
-        <div className="flex flex-col items-center justify-end self-stretch pb-4 sm:pb-6">
+        <div className="flex shrink-0 flex-col items-center justify-end pb-6 sm:pb-7">
             <Badge
                 variant="success"
-                className="z-10 mb-1.5 px-2 py-0.5 text-[10px] font-semibold shadow-sm"
+                className="mb-1 whitespace-nowrap px-1.5 py-0.5 text-[9px] font-semibold shadow-sm sm:px-2 sm:text-[10px]"
             >
                 {percentage}
             </Badge>
-            <div className="h-10 w-px bg-gradient-to-b from-[var(--success)] to-[var(--border)] sm:h-12" />
+            <div className="h-6 w-px bg-gradient-to-b from-[var(--success)] to-[var(--border)] sm:h-8" />
+        </div>
+    );
+}
+
+function PeriodSwitch({ 
+    value, 
+    onChange 
+}: { 
+    value: Period; 
+    onChange: (period: Period) => void;
+}) {
+    const periods: { key: Period; label: string }[] = [
+        { key: "hoy", label: "Hoy" },
+        { key: "semana", label: "Semana" },
+        { key: "mes", label: "Mes" },
+    ];
+
+    return (
+        <div className="flex rounded-lg bg-[var(--muted)]/60 p-1">
+            {periods.map((period) => (
+                <button
+                    key={period.key}
+                    onClick={() => onChange(period.key)}
+                    className={cn(
+                        "rounded-md px-2.5 py-1 text-[11px] font-medium transition-all duration-200 sm:px-3 sm:text-xs",
+                        value === period.key
+                            ? "bg-white text-[var(--card-foreground)] shadow-sm"
+                            : "text-[var(--muted-foreground)] hover:text-[var(--card-foreground)]"
+                    )}
+                >
+                    {period.label}
+                </button>
+            ))}
         </div>
     );
 }
 
 export function ConversionFunnel({ funnel }: ConversionFunnelProps) {
+    const [period, setPeriod] = useState<Period>("hoy");
     const { stages, connectors } = funnel;
 
-    // We need to interleave stages and connectors
-    // Assuming stages.length === connectors.length + 1
-
     return (
-        <Card className="flex min-w-0 flex-col overflow-hidden p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] sm:p-6">
-            <h2 className="text-[15px] font-semibold text-[var(--card-foreground)] sm:text-base">
-                Embudo de Conversión
-            </h2>
+        <Card className="flex min-w-0 flex-col overflow-hidden p-4 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] sm:p-5">
+            {/* Header */}
+            <div className="flex items-center justify-between gap-4">
+                <h2 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                    Embudo de Conversión
+                </h2>
+                <PeriodSwitch value={period} onChange={setPeriod} />
+            </div>
 
-            <div className="mt-4 flex min-w-0 items-end gap-1 sm:gap-2">
+            {/* Funnel */}
+            <div className="mt-4 flex min-w-0 items-end gap-1.5 sm:gap-2">
                 {stages.map((stage, index) => (
-                    <div key={stage.id} className="contents min-w-0">
+                    <div key={stage.id} className="contents">
                         <FunnelStage stage={stage} />
                         {index < connectors.length && (
                             <PercentageConnector percentage={connectors[index].percentage} />

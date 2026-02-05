@@ -1,3 +1,4 @@
+// src/components/appointments-table.tsx
 "use client";
 
 import { MoreHorizontal, Eye, Edit, Trash2, Calendar, Clock } from "lucide-react";
@@ -17,6 +18,7 @@ import { Appointment } from "@/types/dashboard";
 
 interface AppointmentsTableProps {
     appointments: Appointment[];
+    onViewAll?: () => void;
 }
 
 function ToggleTabs() {
@@ -35,13 +37,14 @@ function ToggleTabs() {
     );
 }
 
-function AppointmentRow({ apt, index }: { apt: Appointment; index: number }) {
+function AppointmentRow({ apt, index, onClick }: { apt: Appointment; index: number; onClick?: () => void }) {
     return (
         <div
             className={cn(
-                "group flex items-center gap-4 rounded-xl p-4 transition-all duration-200 hover:bg-[var(--muted)]/60",
+                "group flex cursor-pointer items-center gap-4 rounded-xl p-4 transition-all duration-200 hover:bg-[var(--muted)]/60",
                 index === 0 && "bg-[var(--muted)]/30"
             )}
+            onClick={onClick}
         >
             {/* Avatar */}
             <Avatar className={cn("h-11 w-11 ring-2 ring-white shadow-md", apt.avatarColor)}>
@@ -75,7 +78,7 @@ function AppointmentRow({ apt, index }: { apt: Appointment; index: number }) {
 
             {/* Actions */}
             <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                     <Button
                         variant="ghost"
                         size="icon"
@@ -101,9 +104,12 @@ function AppointmentRow({ apt, index }: { apt: Appointment; index: number }) {
     );
 }
 
-function AppointmentCard({ apt }: { apt: Appointment }) {
+function AppointmentCard({ apt, onClick }: { apt: Appointment; onClick?: () => void }) {
     return (
-        <div className="flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition-all hover:shadow-md sm:hidden">
+        <div 
+            className="flex cursor-pointer flex-col gap-4 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition-all hover:shadow-md sm:hidden"
+            onClick={onClick}
+        >
             <div className="flex items-center gap-3">
                 <Avatar className={cn("h-12 w-12 ring-2 ring-white shadow-md", apt.avatarColor)}>
                     <AvatarFallback className="bg-transparent text-[14px] font-semibold text-white">
@@ -124,7 +130,7 @@ function AppointmentCard({ apt }: { apt: Appointment }) {
                     {apt.time}
                 </div>
                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                         <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[12px]">
                             <MoreHorizontal size={14} />
                             Acciones
@@ -142,7 +148,7 @@ function AppointmentCard({ apt }: { apt: Appointment }) {
     );
 }
 
-export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
+export function AppointmentsTable({ appointments, onViewAll }: AppointmentsTableProps) {
     return (
         <Card className="flex flex-col overflow-hidden p-0 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)]">
             {/* Header */}
@@ -161,19 +167,23 @@ export function AppointmentsTable({ appointments }: AppointmentsTableProps) {
             {/* Mobile Cards View */}
             <div className="flex flex-col gap-4 p-4 sm:hidden">
                 {appointments.map((apt) => (
-                    <AppointmentCard key={apt.id} apt={apt} />
+                    <AppointmentCard key={apt.id} apt={apt} onClick={onViewAll} />
                 ))}
             </div>
 
             {/* Desktop List View */}
             <div className="hidden flex-col sm:flex">
                 {appointments.map((apt, index) => (
-                    <AppointmentRow key={apt.id} apt={apt} index={index} />
+                    <AppointmentRow key={apt.id} apt={apt} index={index} onClick={onViewAll} />
                 ))}
 
                 {/* Footer */}
                 <div className="border-t border-[var(--border)] p-4">
-                    <Button variant="ghost" className="w-full gap-2 text-[13px] text-[var(--primary)]">
+                    <Button 
+                        variant="ghost" 
+                        className="w-full gap-2 text-[13px] text-[var(--primary)]"
+                        onClick={onViewAll}
+                    >
                         <Calendar size={16} />
                         Ver todos los turnos
                     </Button>

@@ -1,113 +1,113 @@
+// src/components/recent-activity.tsx
 "use client";
 
-import { SlidersHorizontal, Wallet, MessageCircle, TrendingUp, ChevronRight, Zap } from "lucide-react";
+import { SlidersHorizontal, MessageCircle, UserPlus, Link2, ChevronRight, ShoppingBag, UserCheck, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { ActivityItem } from "@/types/dashboard";
+
+interface ActivityItem {
+    id: string;
+    type: "lead" | "sale" | "client" | "contact" | "upgrade";
+    title: string;
+    time: string;
+    amount?: string;
+    via?: string;
+}
 
 interface RecentActivityProps {
     activity: ActivityItem[];
+    onViewAll?: () => void;
 }
 
 function ActivityCard({ item, isLast }: { item: ActivityItem; isLast: boolean }) {
     const getIconData = (type: string) => {
         switch (type) {
             case "lead":
-                return { icon: <MessageCircle size={18} className="text-white" />, bg: "bg-gradient-to-br from-emerald-400 to-green-500" };
+                return { 
+                    icon: <MessageCircle size={14} className="text-white" />, 
+                    bg: "bg-gradient-to-br from-emerald-400 to-green-500" 
+                };
             case "sale":
-                return { icon: <Wallet size={18} className="text-white" />, bg: "bg-gradient-to-br from-blue-400 to-indigo-500" };
+                return { 
+                    icon: <ShoppingBag size={14} className="text-white" />, 
+                    bg: "bg-gradient-to-br from-blue-400 to-indigo-500" 
+                };
+            case "client":
+                return { 
+                    icon: <UserPlus size={14} className="text-white" />, 
+                    bg: "bg-gradient-to-br from-violet-400 to-purple-500" 
+                };
+            case "contact":
+                return { 
+                    icon: <UserCheck size={14} className="text-white" />, 
+                    bg: "bg-gradient-to-br from-amber-400 to-orange-500" 
+                };
+            case "upgrade":
+                return { 
+                    icon: <Sparkles size={14} className="text-white" />, 
+                    bg: "bg-gradient-to-br from-pink-400 to-rose-500" 
+                };
             default:
-                return { icon: <MessageCircle size={18} className="text-white" />, bg: "bg-gradient-to-br from-gray-400 to-gray-500" };
+                return { 
+                    icon: <MessageCircle size={14} className="text-white" />, 
+                    bg: "bg-gradient-to-br from-gray-400 to-gray-500" 
+                };
         }
     };
 
     const { icon, bg } = getIconData(item.type);
 
     return (
-        <div className="group relative flex gap-4">
-            {/* Timeline */}
-            <div className="flex flex-col items-center">
-                {/* Icon */}
+        <>
+            <div className="group relative flex items-start gap-3 py-3">
                 <div className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-lg ring-4 ring-white",
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full shadow-sm",
                     bg
                 )}>
                     {icon}
                 </div>
-                {/* Line */}
-                {!isLast && (
-                    <div className="mt-3 h-full w-0.5 rounded-full bg-gradient-to-b from-[var(--border)] via-[var(--border)] to-transparent" />
-                )}
-            </div>
 
-            {/* Content Card */}
-            <div className={cn(
-                "mb-6 flex-1 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm transition-all duration-200",
-                "hover:border-[var(--primary)]/20 hover:shadow-md"
-            )}>
-                {/* Header */}
-                <div className="flex items-start justify-between gap-2">
-                    <div>
-                        <p className="text-[14px] font-semibold text-[var(--card-foreground)]">{item.title}</p>
-                        <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">{item.time}</p>
-                    </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg opacity-0 transition-opacity group-hover:opacity-100">
-                        <ChevronRight size={16} />
-                    </Button>
-                </div>
-
-                {/* Description */}
-                {item.description && (
-                    <div className="mt-3 rounded-xl bg-[var(--muted)]/60 p-3">
-                        <p className="line-clamp-2 text-[13px] italic text-[var(--muted-foreground)]">
-                            {item.description}
+                <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                            <p className="text-[14px] font-medium text-[var(--card-foreground)]">
+                                {item.title}
+                            </p>
+                            {item.via && (
+                                <span className="flex items-center gap-1 rounded-md bg-[var(--muted)]/80 px-1.5 py-0.5 text-[11px] text-[var(--muted-foreground)]">
+                                    <Link2 size={10} />
+                                    {item.via}
+                                </span>
+                            )}
+                        </div>
+                        <p className="mt-0.5 text-[12px] text-[var(--muted-foreground)]">
+                            {item.time}
                         </p>
                     </div>
-                )}
-
-                {/* Tags */}
-                {item.tags && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                        {item.tags.map((tag) => (
-                            <Badge
-                                key={tag}
-                                variant="secondary"
-                                className="gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium"
-                            >
-                                {tag.includes("IA") && <Zap size={10} />}
-                                {tag}
-                            </Badge>
-                        ))}
-                    </div>
-                )}
-
-                {/* Amount */}
-                {item.amount && (
-                    <div className="mt-3 flex items-center justify-between rounded-xl bg-gradient-to-r from-[var(--success-bg)] to-[var(--success-bg)]/50 p-3">
-                        <div className="flex items-center gap-2">
-                            <TrendingUp size={18} className="text-[var(--success)]" />
-                            <span className="text-xl font-bold text-[var(--success)]">{item.amount}</span>
-                        </div>
-                        {item.badge && (
-                            <Badge variant="success" className="px-3 py-1 text-[11px] font-semibold shadow-sm">
-                                ✓ {item.badge}
-                            </Badge>
-                        )}
-                    </div>
-                )}
+                    
+                    {item.amount && (
+                        <span className="shrink-0 whitespace-nowrap rounded-md bg-[var(--success-bg)] px-2 py-1 text-[13px] font-semibold tabular-nums text-[var(--success)]">
+                            +${item.amount}
+                        </span>
+                    )}
+                </div>
             </div>
-        </div>
+            
+            {!isLast && (
+                <div className="ml-11 border-b border-[var(--border)]" />
+            )}
+        </>
     );
 }
 
-export function RecentActivity({ activity }: RecentActivityProps) {
+export function RecentActivity({ activity, onViewAll }: RecentActivityProps) {
+    const limitedActivity = activity.slice(0, 5);
+
     return (
         <TooltipProvider>
             <Card className="flex h-full flex-col overflow-hidden p-0 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)]">
-                {/* Header */}
                 <div className="flex items-start justify-between border-b border-[var(--border)] bg-gradient-to-r from-[var(--card)] to-[var(--muted)]/30 p-5 sm:p-6">
                     <div>
                         <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ export function RecentActivity({ activity }: RecentActivityProps) {
                             </span>
                         </div>
                         <p className="mt-1 text-[13px] text-[var(--muted-foreground)]">
-                            Flujo en tiempo real de Leads y Ventas
+                            Leads y ventas en tiempo real
                         </p>
                     </div>
                     <Tooltip>
@@ -129,24 +129,26 @@ export function RecentActivity({ activity }: RecentActivityProps) {
                                 <SlidersHorizontal size={16} />
                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Filtrar actividad</TooltipContent>
+                        <TooltipContent>Filtrar</TooltipContent>
                     </Tooltip>
                 </div>
 
-                {/* Activity Timeline */}
-                <div className="flex-1 p-5 sm:p-6">
-                    {activity.map((item, index) => (
+                <div className="flex-1 overflow-y-auto px-5 sm:px-6">
+                    {limitedActivity.map((item, index) => (
                         <ActivityCard
                             key={item.id}
                             item={item}
-                            isLast={index === activity.length - 1}
+                            isLast={index === limitedActivity.length - 1}
                         />
                     ))}
                 </div>
 
-                {/* Footer */}
                 <div className="border-t border-[var(--border)] p-4">
-                    <Button variant="ghost" className="w-full gap-2 text-[13px] text-[var(--primary)]">
+                    <Button 
+                        variant="ghost" 
+                        className="w-full gap-2 text-[13px] text-[var(--primary)]"
+                        onClick={onViewAll}
+                    >
                         Ver toda la actividad
                         <ChevronRight size={16} />
                     </Button>

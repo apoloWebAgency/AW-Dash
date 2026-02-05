@@ -1,159 +1,285 @@
+// src/components/sidebar.tsx
 "use client";
 
-import { MessageSquare, LayoutDashboard, History, Calendar, Settings, PanelLeft, Bot, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { 
+    LayoutDashboard, 
+    ChevronDown, 
+    Activity, 
+    Users, 
+    UserPlus,
+    Calendar,
+    Bot,
+    Settings,
+    LogOut,
+    Menu,
+    X
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { UserProfile, DashboardStats } from "@/types/dashboard";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
-    user: UserProfile;
-    stats: DashboardStats;
+    user: {
+        name: string;
+        role: string;
+        initials: string;
+    };
+    stats: {
+        iaActive: boolean;
+        newLeadsCount: number;
+        newSalesCount: number;
+    };
+    currentView: string;
+    onNavigate: (view: string) => void;
 }
 
-const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", active: true },
-    { icon: MessageSquare, label: "Chats" },
-    { icon: History, label: "Historial" },
-    { icon: Calendar, label: "Agenda" },
-    { icon: Settings, label: "Configuración" },
-];
+interface NavItemProps {
+    icon: React.ReactNode;
+    label: string;
+    isActive?: boolean;
+    hasSubmenu?: boolean;
+    isExpanded?: boolean;
+    onClick?: () => void;
+    badge?: number;
+}
 
-export function Sidebar({ user, stats }: SidebarProps) {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-
+function NavItem({ icon, label, isActive, hasSubmenu, isExpanded, onClick, badge }: NavItemProps) {
     return (
-        <>
-            {/* Mobile Drawer */}
-            <Sheet>
-                <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon" className="lg:hidden">
-                        <PanelLeft className="h-5 w-5" />
-                    </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[280px] p-0">
-                    <SidebarContent user={user} stats={stats} />
-                </SheetContent>
-            </Sheet>
-
-            {/* Desktop Sidebar */}
-            <div
-                className={cn(
-                    "hidden h-screen flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] transition-all duration-300 lg:flex",
-                    isCollapsed ? "w-20" : "w-[280px]"
-                )}
-            >
-                <SidebarContent
-                    collapsed={isCollapsed}
-                    onToggle={() => setIsCollapsed(!isCollapsed)}
-                    user={user}
-                    stats={stats}
-                />
+        <button
+            onClick={onClick}
+            className={cn(
+                "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-[14px] font-medium transition-all duration-200",
+                isActive
+                    ? "bg-[var(--primary)] text-white shadow-sm"
+                    : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/60 hover:text-[var(--card-foreground)]"
+            )}
+        >
+            <div className="flex items-center gap-3">
+                {icon}
+                <span>{label}</span>
             </div>
-        </>
+            <div className="flex items-center gap-2">
+                {badge && badge > 0 && (
+                    <span className={cn(
+                        "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold",
+                        isActive 
+                            ? "bg-white/20 text-white" 
+                            : "bg-[var(--primary)]/10 text-[var(--primary)]"
+                    )}>
+                        {badge}
+                    </span>
+                )}
+                {hasSubmenu && (
+                    <ChevronDown 
+                        size={16} 
+                        className={cn(
+                            "transition-transform duration-200",
+                            isExpanded && "rotate-180"
+                        )} 
+                    />
+                )}
+            </div>
+        </button>
     );
 }
 
-interface SidebarContentProps {
-    collapsed?: boolean;
-    onToggle?: () => void;
-    user: UserProfile;
-    stats: DashboardStats;
+interface SubNavItemProps {
+    icon: React.ReactNode;
+    label: string;
+    isActive?: boolean;
+    onClick?: () => void;
+    badge?: number;
 }
 
-function SidebarContent({ collapsed, onToggle, user, stats }: SidebarContentProps) {
+function SubNavItem({ icon, label, isActive, onClick, badge }: SubNavItemProps) {
     return (
-        <div className="flex h-full flex-col">
-            {/* Header */}
-            <div className={cn("flex items-center gap-3 p-6", collapsed && "justify-center px-4")}>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)] text-white shadow-md">
-                    <Bot size={24} />
-                </div>
-                {!collapsed && (
-                    <div className="flex flex-col">
-                        <span className="font-bold text-[var(--foreground)]">Flux AI</span>
-                        <span className="text-[11px] text-[var(--muted-foreground)]">Smart Dashboard</span>
-                    </div>
-                )}
+        <button
+            onClick={onClick}
+            className={cn(
+                "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-200",
+                isActive
+                    ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                    : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/40 hover:text-[var(--card-foreground)]"
+            )}
+        >
+            <div className="flex items-center gap-3">
+                {icon}
+                <span>{label}</span>
             </div>
+            {badge && badge > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--primary)]/10 px-1.5 text-[11px] font-semibold text-[var(--primary)]">
+                    {badge}
+                </span>
+            )}
+        </button>
+    );
+}
 
-            {/* Navigation */}
-            <nav className="flex-1 space-y-2 px-3 py-6">
-                <TooltipProvider delayDuration={0}>
-                    {menuItems.map((item) => (
-                        <Tooltip key={item.label}>
-                            <TooltipTrigger asChild>
-                                <button
-                                    className={cn(
-                                        "flex w-full items-center gap-3 rounded-xl px-3 py-3 text-[14px] font-medium transition-all",
-                                        item.active
-                                            ? "bg-[var(--primary)] text-white shadow-md"
-                                            : "text-[var(--secondary-foreground)] hover:bg-[var(--muted)]",
-                                        collapsed && "justify-center px-0"
-                                    )}
-                                >
-                                    <item.icon size={20} />
-                                    {!collapsed && <span>{item.label}</span>}
-                                </button>
-                            </TooltipTrigger>
-                            {collapsed && <TooltipContent side="right">{item.label}</TooltipContent>}
-                        </Tooltip>
-                    ))}
-                </TooltipProvider>
-            </nav>
+export function Sidebar({ user, stats, currentView, onNavigate }: SidebarProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [isDashboardExpanded, setIsDashboardExpanded] = useState(true);
 
-            {/* IA Status Card */}
-            {!collapsed && (
-                <div className="px-4 pb-6">
-                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4 text-white shadow-lg">
-                        <div className="relative z-10 flex items-center justify-between">
-                            <span className="flex items-center gap-2 text-[13px] font-semibold">
-                                <Sparkles size={14} className="animate-pulse" />
-                                IA Status
-                            </span>
-                            <span className={cn(
-                                "rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm",
-                                stats.iaActive ? "bg-white/20 text-white" : "bg-black/20 text-gray-200"
-                            )}>
-                                {stats.iaActive ? "ACTIVO" : "INACTIVO"}
-                            </span>
-                        </div>
-                        <p className="mt-2 text-[11px] font-medium opacity-90">
-                            Analizando conversaciones en tiempo real...
-                        </p>
-                    </div>
-                </div>
+    return (
+        <>
+            {/* Mobile Menu Button */}
+            <button
+                onClick={() => setIsOpen(true)}
+                className="fixed left-4 top-4 z-40 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-md lg:hidden"
+            >
+                <Menu size={20} />
+            </button>
+
+            {/* Overlay */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+                    onClick={() => setIsOpen(false)}
+                />
             )}
 
-            {/* Footer / Toggle */}
-            <div className={cn("border-t border-[var(--sidebar-border)] p-4", collapsed && "flex justify-center")}>
-                {!collapsed ? (
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-blue-500 to-cyan-500 text-[12px] font-bold text-white shadow-sm">
-                                {user.initials}
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-[13px] font-semibold text-[var(--foreground)]">{user.name}</span>
-                                <span className="text-[11px] text-[var(--muted-foreground)]">{user.role}</span>
-                            </div>
+            {/* Sidebar */}
+            <aside
+                className={cn(
+                    "fixed left-0 top-0 z-50 flex h-full w-72 flex-col bg-white shadow-xl transition-transform duration-300 lg:static lg:z-0 lg:shadow-[var(--shadow-sm)]",
+                    isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+                )}
+            >
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-[var(--border)] p-5">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] text-white shadow-sm">
+                            <Bot size={20} />
                         </div>
-                        {onToggle && (
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--muted-foreground)]" onClick={onToggle}>
-                                <PanelLeft size={16} />
-                            </Button>
+                        <div>
+                            <p className="text-[15px] font-semibold text-[var(--card-foreground)]">
+                                ChatAgent
+                            </p>
+                            <p className="text-[12px] text-[var(--muted-foreground)]">
+                                Panel de Control
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--muted)]/60 lg:hidden"
+                    >
+                        <X size={18} />
+                    </button>
+                </div>
+
+                {/* IA Status */}
+                <div className="border-b border-[var(--border)] p-4">
+                    <div className="flex items-center justify-between rounded-xl bg-gradient-to-r from-[var(--success-bg)] to-[var(--success-bg)]/50 p-3">
+                        <div className="flex items-center gap-2">
+                            <span className="relative flex h-2.5 w-2.5">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--success)] opacity-75" />
+                                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[var(--success)]" />
+                            </span>
+                            <span className="text-[13px] font-medium text-[var(--success)]">
+                                IA Activa
+                            </span>
+                        </div>
+                        <span className="text-[12px] text-[var(--muted-foreground)]">
+                            24/7
+                        </span>
+                    </div>
+                </div>
+
+                {/* Navigation */}
+                <nav className="flex-1 overflow-y-auto p-4">
+                    <div className="space-y-1">
+                        {/* Dashboard con submenú */}
+                        <NavItem
+                            icon={<LayoutDashboard size={18} />}
+                            label="Dashboard"
+                            isActive={currentView === "dashboard"}
+                            hasSubmenu
+                            isExpanded={isDashboardExpanded}
+                            onClick={() => {
+                                if (isDashboardExpanded && currentView !== "dashboard") {
+                                    onNavigate("dashboard");
+                                }
+                                setIsDashboardExpanded(!isDashboardExpanded);
+                            }}
+                        />
+
+                        {/* Submenú del Dashboard */}
+                        {isDashboardExpanded && (
+                            <div className="ml-3 mt-1 space-y-1 border-l-2 border-[var(--border)] pl-3">
+                                <SubNavItem
+                                    icon={<Activity size={16} />}
+                                    label="Actividad Reciente"
+                                    isActive={currentView === "activity"}
+                                    onClick={() => {
+                                        onNavigate("activity");
+                                        setIsOpen(false);
+                                    }}
+                                />
+                                <SubNavItem
+                                    icon={<Users size={16} />}
+                                    label="Clientes"
+                                    isActive={currentView === "clients"}
+                                    onClick={() => {
+                                        onNavigate("clients");
+                                        setIsOpen(false);
+                                    }}
+                                    badge={stats.newSalesCount}
+                                />
+                                <SubNavItem
+                                    icon={<UserPlus size={16} />}
+                                    label="Leads"
+                                    isActive={currentView === "leads"}
+                                    onClick={() => {
+                                        onNavigate("leads");
+                                        setIsOpen(false);
+                                    }}
+                                    badge={stats.newLeadsCount}
+                                />
+                                <SubNavItem
+                                    icon={<Calendar size={16} />}
+                                    label="Turnos"
+                                    isActive={currentView === "appointments"}
+                                    onClick={() => {
+                                        onNavigate("appointments");
+                                        setIsOpen(false);
+                                    }}
+                                />
+                            </div>
                         )}
                     </div>
-                ) : (
-                    onToggle && (
-                        <Button variant="ghost" size="icon" onClick={onToggle}>
-                            <PanelLeft size={20} />
+
+                    <div className="my-4 h-px bg-[var(--border)]" />
+
+                    {/* Settings */}
+                    <div className="space-y-1">
+                        <NavItem
+                            icon={<Settings size={18} />}
+                            label="Configuración"
+                            onClick={() => {}}
+                        />
+                    </div>
+                </nav>
+
+                {/* User */}
+                <div className="border-t border-[var(--border)] p-4">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] text-[14px] font-semibold text-white">
+                            {user.initials}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate text-[14px] font-medium text-[var(--card-foreground)]">
+                                {user.name}
+                            </p>
+                            <p className="truncate text-[12px] text-[var(--muted-foreground)]">
+                                {user.role}
+                            </p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                            <LogOut size={16} />
                         </Button>
-                    )
-                )}
-            </div>
-        </div>
+                    </div>
+                </div>
+            </aside>
+        </>
     );
 }

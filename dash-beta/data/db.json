@@ -139,18 +139,49 @@
     {
       "id": "act-1",
       "type": "lead",
-      "title": "Nuevo Lead por WhatsApp",
-      "time": "Hace 2 min",
-      "description": "\"Hola, me gustaría saber precios del plan premium...\"",
-      "tags": ["Atendido por IA", "Intención: Compra"]
+      "title": "Nuevo lead en contacto",
+      "time": "Hace 5 minutos"
     },
     {
       "id": "act-2",
       "type": "sale",
-      "title": "Venta Realizada via Link",
-      "time": "Hace 15 min",
-      "amount": "$150.00",
-      "badge": "Pago Exitoso"
+      "title": "Venta realizada",
+      "time": "Hace 15 minutos",
+      "amount": "1.250.000",
+      "via": "Link de pago"
+    },
+    {
+      "id": "act-3",
+      "type": "client",
+      "title": "Nuevo cliente registrado",
+      "time": "Hace 1 hora"
+    },
+    {
+      "id": "act-4",
+      "type": "contact",
+      "title": "Lead convertido a cliente",
+      "time": "Hace 2 horas"
+    },
+    {
+      "id": "act-5",
+      "type": "sale",
+      "title": "Venta realizada",
+      "time": "Hace 2 horas",
+      "amount": "85.500",
+      "via": "WhatsApp"
+    },
+    {
+      "id": "act-6",
+      "type": "upgrade",
+      "title": "Cliente actualizó su plan",
+      "time": "Hace 3 horas",
+      "amount": "299.000"
+    },
+    {
+      "id": "act-7",
+      "type": "lead",
+      "title": "Nuevo lead desde landing",
+      "time": "Hace 4 horas"
     }
   ]
 }

@@ -1,8 +1,8 @@
-// src/app/page.tsx
-import { getDashboardData } from "@/lib/data";
-import { getMetricData } from "@/lib/actions";
+O/OOB/ src/app/page.tsx
+AAimpOOBort { getDashboardData } from "@/lib/data";
+iOAmport { getMetricData } from "@/lib/actions";
 import { DashboardContent } from "@/components/dashboard-content";
-
+OBO
 export default async function Home() {
     const data = await getDashboardData();
     const metrics = await getMetricData();
