@@ -6,14 +6,10 @@ import {
     ArrowLeft, 
     Search, 
     Plus, 
-    Filter, 
     Calendar,
     Clock,
     Phone,
     Mail,
-    User,
-    ChevronRight,
-    ChevronLeft,
     X,
     Check,
     AlertCircle,
@@ -23,7 +19,16 @@ import {
     Trash2,
     RefreshCw,
     Bell,
-    MessageCircle
+    MessageCircle,
+    Users,
+    UserPlus,
+    TrendingDown,
+    Target,
+    Zap,
+    ChevronLeft,
+    ChevronRight,
+    CalendarDays,
+    History
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,6 +42,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+
+// ==================== TIPOS ====================
 
 interface Appointment {
     id: string;
@@ -53,13 +60,36 @@ interface Appointment {
     notes?: string;
     price?: string;
     reminderSent?: boolean;
+    isRecurring?: boolean;
 }
 
 interface AppointmentsViewProps {
     onBack: () => void;
 }
 
-// Datos de ejemplo expandidos
+interface MetricCardData {
+    id: string;
+    category: string;
+    title: string;
+    iconType: string;
+    data: {
+        week: {
+            value: string;
+            subtitle?: string;
+            trend?: string;
+            progress?: number;
+        };
+        month: {
+            value: string;
+            subtitle?: string;
+            trend?: string;
+            progress?: number;
+        };
+    };
+}
+
+// ==================== DATOS DE EJEMPLO ====================
+
 const mockAppointments: Appointment[] = [
     {
         id: "1",
@@ -75,7 +105,8 @@ const mockAppointments: Appointment[] = [
         status: "confirmed",
         price: "15.000",
         reminderSent: true,
-        notes: "Primera consulta - viene por recomendación"
+        notes: "Primera consulta - viene por recomendación",
+        isRecurring: false
     },
     {
         id: "2",
@@ -89,7 +120,8 @@ const mockAppointments: Appointment[] = [
         time: "14:30",
         duration: "30 min",
         status: "pending",
-        price: "8.000"
+        price: "8.000",
+        isRecurring: true
     },
     {
         id: "3",
@@ -104,7 +136,8 @@ const mockAppointments: Appointment[] = [
         duration: "1.5 horas",
         status: "confirmed",
         price: "25.000",
-        reminderSent: true
+        reminderSent: true,
+        isRecurring: true
     },
     {
         id: "4",
@@ -118,7 +151,8 @@ const mockAppointments: Appointment[] = [
         time: "09:00",
         duration: "30 min",
         status: "confirmed",
-        price: "10.000"
+        price: "10.000",
+        isRecurring: false
     },
     {
         id: "5",
@@ -132,7 +166,8 @@ const mockAppointments: Appointment[] = [
         time: "11:30",
         duration: "45 min",
         status: "pending",
-        price: "12.000"
+        price: "12.000",
+        isRecurring: true
     },
     {
         id: "6",
@@ -146,7 +181,8 @@ const mockAppointments: Appointment[] = [
         time: "15:00",
         duration: "1 hora",
         status: "completed",
-        price: "15.000"
+        price: "15.000",
+        isRecurring: false
     },
     {
         id: "7",
@@ -161,7 +197,8 @@ const mockAppointments: Appointment[] = [
         duration: "1.5 horas",
         status: "no-show",
         price: "25.000",
-        notes: "No se presentó, no respondió llamadas"
+        notes: "No se presentó, no respondió llamadas",
+        isRecurring: true
     },
     {
         id: "8",
@@ -176,8 +213,82 @@ const mockAppointments: Appointment[] = [
         duration: "30 min",
         status: "cancelled",
         price: "10.000",
-        notes: "Canceló por enfermedad, reagendar"
+        notes: "Canceló por enfermedad, reagendar",
+        isRecurring: false
     },
+];
+
+const metricsData: MetricCardData[] = [
+    {
+        id: "recurring",
+        category: "FIDELIZACIÓN",
+        title: "Recurrentes vs Nuevos",
+        iconType: "users",
+        data: {
+            week: {
+                value: "72%",
+                subtitle: "18 recurrentes · 7 nuevos",
+                trend: "+5% vs semana anterior"
+            },
+            month: {
+                value: "68%",
+                subtitle: "85 recurrentes · 40 nuevos",
+                trend: "+3% vs mes anterior"
+            }
+        }
+    },
+    {
+        id: "cancellation",
+        category: "CANCELACIONES",
+        title: "Tasa de Cancelación",
+        iconType: "trending-down",
+        data: {
+            week: {
+                value: "8%",
+                subtitle: "2 cancelados de 25",
+                trend: "-2% vs semana anterior"
+            },
+            month: {
+                value: "12%",
+                subtitle: "15 cancelados de 125",
+                trend: "+1% vs mes anterior"
+            }
+        }
+    },
+    {
+        id: "peak-hour",
+        category: "HORARIO PICO",
+        title: "Más Activo",
+        iconType: "clock",
+        data: {
+            week: {
+                value: "10-12hs",
+                subtitle: "85% ocupación en ese horario"
+            },
+            month: {
+                value: "10-12hs",
+                subtitle: "82% ocupación promedio"
+            }
+        }
+    },
+    {
+        id: "efficiency",
+        category: "EFICIENCIA",
+        title: "Ocupación de Agenda",
+        iconType: "target",
+        data: {
+            week: {
+                value: "76%",
+                subtitle: "Meta: 85%",
+                progress: 76
+            },
+            month: {
+                value: "71%",
+                subtitle: "Meta: 85%",
+                progress: 71
+            }
+        }
+    }
 ];
 
 const statusConfig = {
@@ -217,7 +328,118 @@ const services = [
 ];
 
 type FilterStatus = "all" | "confirmed" | "pending" | "cancelled" | "completed" | "no-show";
-type FilterDate = "all" | "today" | "tomorrow" | "week" | "past";
+type ViewTab = "upcoming" | "history";
+
+// ==================== COMPONENTE DE MÉTRICA ====================
+
+function AppointmentMetricCard({ metric }: { metric: MetricCardData }) {
+    const [period, setPeriod] = useState<"week" | "month">("week");
+    const currentData = metric.data[period];
+
+    const getIconData = (type: string) => {
+        switch (type) {
+            case "users":
+                return { icon: <Users size={22} className="text-violet-600" />, bg: "bg-violet-100" };
+            case "trending-down":
+                return { icon: <TrendingDown size={22} className="text-amber-600" />, bg: "bg-amber-100" };
+            case "clock":
+                return { icon: <Zap size={22} className="text-blue-600" />, bg: "bg-blue-100" };
+            case "target":
+                return { icon: <Target size={22} className="text-emerald-600" />, bg: "bg-emerald-100" };
+            default:
+                return { icon: <Users size={22} className="text-violet-600" />, bg: "bg-violet-100" };
+        }
+    };
+
+    const { icon, bg } = getIconData(metric.iconType);
+    
+    const isNegativeMetric = metric.id === "cancellation";
+    const trendColor = currentData.trend?.startsWith("-") 
+        ? (isNegativeMetric ? "text-emerald-600" : "text-red-500")
+        : (isNegativeMetric ? "text-red-500" : "text-emerald-600");
+
+    return (
+        <Card className="flex flex-col p-4 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)]">
+            <div className="flex items-start justify-between gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                    {metric.category}
+                </span>
+
+                <div className="flex items-center rounded-full border border-[var(--border)] bg-transparent p-0.5">
+                    <button
+                        onClick={() => setPeriod("week")}
+                        className={cn(
+                            "rounded-full px-2 py-0.5 text-[10px] font-semibold transition-all duration-300",
+                            period === "week"
+                                ? "bg-[var(--foreground)] text-white shadow-sm"
+                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                        )}
+                    >
+                        Semana
+                    </button>
+                    <button
+                        onClick={() => setPeriod("month")}
+                        className={cn(
+                            "rounded-full px-2 py-0.5 text-[10px] font-semibold transition-all duration-300",
+                            period === "month"
+                                ? "bg-[var(--foreground)] text-white shadow-sm"
+                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                        )}
+                    >
+                        Mes
+                    </button>
+                </div>
+            </div>
+
+            <p className="mt-1 text-[13px] font-medium text-[var(--card-foreground)]">{metric.title}</p>
+
+            <div className="mt-3 flex items-end justify-between">
+                <div className="min-w-0 flex-1">
+                    <p className="text-[28px] font-bold leading-none tracking-tight text-[var(--card-foreground)]">
+                        {currentData.value}
+                    </p>
+
+                    {currentData.trend && (
+                        <p className={cn("mt-1.5 flex items-center gap-1 text-[11px]", trendColor)}>
+                            <span>{currentData.trend.startsWith("-") ? "↘" : "↗"}</span>
+                            <span>{currentData.trend}</span>
+                        </p>
+                    )}
+
+                    {currentData.subtitle && !currentData.trend && (
+                        <p className="mt-1.5 text-[11px] text-[var(--muted-foreground)]">
+                            {currentData.subtitle}
+                        </p>
+                    )}
+
+                    {currentData.progress !== undefined && (
+                        <div className="mt-2">
+                            <div className="flex items-center justify-between text-[10px]">
+                                <span className="text-[var(--muted-foreground)]">{currentData.subtitle}</span>
+                            </div>
+                            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[var(--border)]">
+                                <div
+                                    className={cn(
+                                        "h-full rounded-full transition-all duration-500",
+                                        currentData.progress >= 80 ? "bg-emerald-500" :
+                                        currentData.progress >= 60 ? "bg-amber-500" : "bg-red-500"
+                                    )}
+                                    style={{ width: `${currentData.progress}%` }}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", bg)}>
+                    {icon}
+                </div>
+            </div>
+        </Card>
+    );
+}
+
+// ==================== COMPONENTE DE TURNO ====================
 
 function AppointmentCard({ 
     appointment, 
@@ -244,42 +466,44 @@ function AppointmentCard({
     const isToday = appointment.date === "Hoy";
 
     return (
-        <div className="group flex items-center gap-4 rounded-xl border border-[var(--border)] bg-white p-4 transition-all duration-200 hover:border-[var(--primary)]/20 hover:shadow-md">
-            <Avatar className={cn("h-12 w-12 ring-2 ring-white shadow-md", appointment.avatarColor)}>
-                <AvatarFallback className="bg-transparent text-[14px] font-semibold text-white">
+        <div className="group flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-3 transition-all duration-200 hover:border-[var(--primary)]/20 hover:shadow-md sm:gap-4 sm:p-4">
+            <Avatar className={cn("h-10 w-10 ring-2 ring-white shadow-md sm:h-12 sm:w-12", appointment.avatarColor)}>
+                <AvatarFallback className="bg-transparent text-[12px] font-semibold text-white sm:text-[14px]">
                     {appointment.initials}
                 </AvatarFallback>
             </Avatar>
 
             <div 
-                className="flex min-w-0 flex-1 cursor-pointer items-center justify-between gap-4"
+                className="flex min-w-0 flex-1 cursor-pointer items-center justify-between gap-2 sm:gap-4"
                 onClick={onClick}
             >
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                        <p className="truncate text-[14px] font-medium text-[var(--card-foreground)]">
+                        <p className="truncate text-[13px] font-medium text-[var(--card-foreground)] sm:text-[14px]">
                             {appointment.clientName}
                         </p>
+                        {appointment.isRecurring && (
+                            <Badge variant="secondary" className="hidden h-4 px-1.5 text-[8px] sm:inline-flex">
+                                Recurrente
+                            </Badge>
+                        )}
                         {appointment.reminderSent && (
-                            <Bell size={12} className="text-[var(--primary)]" />
+                            <Bell size={10} className="text-[var(--primary)]" />
                         )}
                     </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-[var(--muted-foreground)]">
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-[var(--muted-foreground)] sm:gap-x-3 sm:text-[12px]">
                         <span className="flex items-center gap-1">
-                            <Calendar size={12} />
-                            {appointment.date}
-                        </span>
-                        <span className="flex items-center gap-1">
-                            <Clock size={12} />
-                            {appointment.time} ({appointment.duration})
+                            <Clock size={10} />
+                            {appointment.time}
                         </span>
                         <span className="hidden sm:inline">{appointment.service}</span>
+                        <span className="sm:hidden">{appointment.duration}</span>
                     </div>
                 </div>
                 
                 <div className="hidden shrink-0 text-right sm:block">
                     {appointment.price && (
-                        <p className="text-[14px] font-semibold tabular-nums text-[var(--card-foreground)]">
+                        <p className="text-[13px] font-semibold tabular-nums text-[var(--card-foreground)]">
                             ${appointment.price}
                         </p>
                     )}
@@ -293,23 +517,21 @@ function AppointmentCard({
                 </div>
             </div>
 
-            {/* Mobile Status */}
             <span className={cn(
-                "flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium sm:hidden",
+                "flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-medium sm:hidden",
                 status.color
             )}>
-                <StatusIcon size={10} />
+                <StatusIcon size={9} />
             </span>
 
-            {/* Actions */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-9 w-9 shrink-0 rounded-lg opacity-60 transition-opacity hover:opacity-100 group-hover:opacity-100"
+                        className="h-8 w-8 shrink-0 rounded-lg opacity-60 transition-opacity hover:opacity-100 group-hover:opacity-100"
                     >
-                        <MoreHorizontal size={18} />
+                        <MoreHorizontal size={16} />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
@@ -366,6 +588,8 @@ function AppointmentCard({
     );
 }
 
+// ==================== DETALLE DE TURNO ====================
+
 function AppointmentDetail({ 
     appointment, 
     onBack,
@@ -390,7 +614,6 @@ function AppointmentDetail({
 
     return (
         <div className="animate-in fade-in-0 slide-in-from-right-4 duration-300">
-            {/* Header */}
             <div className="mb-6 flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <Button 
@@ -408,9 +631,16 @@ function AppointmentDetail({
                             </AvatarFallback>
                         </Avatar>
                         <div>
-                            <h1 className="text-xl font-bold text-[var(--foreground)] sm:text-2xl">
-                                {appointment.clientName}
-                            </h1>
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-xl font-bold text-[var(--foreground)] sm:text-2xl">
+                                    {appointment.clientName}
+                                </h1>
+                                {appointment.isRecurring && (
+                                    <Badge variant="secondary" className="text-[10px]">
+                                        Recurrente
+                                    </Badge>
+                                )}
+                            </div>
                             <p className="text-[13px] text-[var(--muted-foreground)]">
                                 {appointment.service}
                             </p>
@@ -426,66 +656,64 @@ function AppointmentDetail({
                 </span>
             </div>
 
-            {/* Info Cards */}
-            <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <Card className="p-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+            <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+                <Card className="p-3 sm:p-4">
+                    <p className="text-[9px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[10px]">
                         Fecha
                     </p>
-                    <p className="mt-1 text-[15px] font-semibold text-[var(--card-foreground)]">
+                    <p className="mt-1 text-[14px] font-semibold text-[var(--card-foreground)] sm:text-[15px]">
                         {appointment.date}
                     </p>
                 </Card>
-                <Card className="p-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                <Card className="p-3 sm:p-4">
+                    <p className="text-[9px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[10px]">
                         Hora
                     </p>
-                    <p className="mt-1 text-[15px] font-semibold text-[var(--card-foreground)]">
+                    <p className="mt-1 text-[14px] font-semibold text-[var(--card-foreground)] sm:text-[15px]">
                         {appointment.time}
                     </p>
                 </Card>
-                <Card className="p-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                <Card className="p-3 sm:p-4">
+                    <p className="text-[9px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[10px]">
                         Duración
                     </p>
-                    <p className="mt-1 text-[15px] font-semibold text-[var(--card-foreground)]">
+                    <p className="mt-1 text-[14px] font-semibold text-[var(--card-foreground)] sm:text-[15px]">
                         {appointment.duration}
                     </p>
                 </Card>
-                <Card className="p-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                <Card className="p-3 sm:p-4">
+                    <p className="text-[9px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[10px]">
                         Precio
                     </p>
-                    <p className="mt-1 text-[15px] font-semibold text-[var(--success)]">
+                    <p className="mt-1 text-[14px] font-semibold text-[var(--success)] sm:text-[15px]">
                         ${appointment.price}
                     </p>
                 </Card>
             </div>
 
-            {/* Contact Info */}
-            <Card className="mb-6 p-5">
-                <h2 className="mb-4 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+            <Card className="mb-6 p-4 sm:p-5">
+                <h2 className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:mb-4">
                     Información de Contacto
                 </h2>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--muted)]/60">
-                            <Mail size={18} className="text-[var(--muted-foreground)]" />
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--muted)]/60 sm:h-10 sm:w-10">
+                            <Mail size={16} className="text-[var(--muted-foreground)]" />
                         </div>
                         <div>
-                            <p className="text-[12px] text-[var(--muted-foreground)]">Email</p>
-                            <p className="text-[14px] font-medium text-[var(--card-foreground)]">
+                            <p className="text-[11px] text-[var(--muted-foreground)]">Email</p>
+                            <p className="text-[13px] font-medium text-[var(--card-foreground)] sm:text-[14px]">
                                 {appointment.clientEmail}
                             </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--muted)]/60">
-                            <Phone size={18} className="text-[var(--muted-foreground)]" />
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--muted)]/60 sm:h-10 sm:w-10">
+                            <Phone size={16} className="text-[var(--muted-foreground)]" />
                         </div>
                         <div>
-                            <p className="text-[12px] text-[var(--muted-foreground)]">Teléfono</p>
-                            <p className="text-[14px] font-medium text-[var(--card-foreground)]">
+                            <p className="text-[11px] text-[var(--muted-foreground)]">Teléfono</p>
+                            <p className="text-[13px] font-medium text-[var(--card-foreground)] sm:text-[14px]">
                                 {appointment.clientPhone}
                             </p>
                         </div>
@@ -493,39 +721,37 @@ function AppointmentDetail({
                 </div>
             </Card>
 
-            {/* Notes */}
             {appointment.notes && (
-                <Card className="mb-6 p-5">
-                    <h2 className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                <Card className="mb-6 p-4 sm:p-5">
+                    <h2 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:mb-3">
                         Notas
                     </h2>
-                    <p className="text-[14px] text-[var(--card-foreground)]">
+                    <p className="text-[13px] text-[var(--card-foreground)] sm:text-[14px]">
                         {appointment.notes}
                     </p>
                 </Card>
             )}
 
-            {/* Reminder Status */}
-            <Card className="mb-6 p-5">
+            <Card className="mb-6 p-4 sm:p-5">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className={cn(
-                            "flex h-10 w-10 items-center justify-center rounded-lg",
+                            "flex h-9 w-9 items-center justify-center rounded-lg sm:h-10 sm:w-10",
                             appointment.reminderSent 
                                 ? "bg-green-100" 
                                 : "bg-[var(--muted)]/60"
                         )}>
-                            <Bell size={18} className={
+                            <Bell size={16} className={
                                 appointment.reminderSent 
                                     ? "text-green-600" 
                                     : "text-[var(--muted-foreground)]"
                             } />
                         </div>
                         <div>
-                            <p className="text-[14px] font-medium text-[var(--card-foreground)]">
+                            <p className="text-[13px] font-medium text-[var(--card-foreground)] sm:text-[14px]">
                                 Recordatorio
                             </p>
-                            <p className="text-[12px] text-[var(--muted-foreground)]">
+                            <p className="text-[11px] text-[var(--muted-foreground)] sm:text-[12px]">
                                 {appointment.reminderSent 
                                     ? "Enviado correctamente" 
                                     : "No enviado aún"
@@ -534,7 +760,7 @@ function AppointmentDetail({
                         </div>
                     </div>
                     {!appointment.reminderSent && !isPast && appointment.status !== "cancelled" && (
-                        <Button variant="outline" size="sm" onClick={onSendReminder} className="gap-2">
+                        <Button variant="outline" size="sm" onClick={onSendReminder} className="gap-2 text-[12px]">
                             <Bell size={14} />
                             Enviar
                         </Button>
@@ -542,27 +768,26 @@ function AppointmentDetail({
                 </div>
             </Card>
 
-            {/* Actions */}
-            <div className="flex flex-wrap gap-3">
-                <Button variant="outline" className="gap-2">
-                    <Phone size={16} />
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+                <Button variant="outline" size="sm" className="gap-2 text-[12px] sm:text-[13px]">
+                    <Phone size={14} />
                     Llamar
                 </Button>
-                <Button variant="outline" className="gap-2">
-                    <MessageCircle size={16} />
+                <Button variant="outline" size="sm" className="gap-2 text-[12px] sm:text-[13px]">
+                    <MessageCircle size={14} />
                     WhatsApp
                 </Button>
                 
                 {!isPast && appointment.status !== "cancelled" && (
                     <>
-                        <Button variant="outline" onClick={onReschedule} className="gap-2">
-                            <RefreshCw size={16} />
+                        <Button variant="outline" size="sm" onClick={onReschedule} className="gap-2 text-[12px] sm:text-[13px]">
+                            <RefreshCw size={14} />
                             Reagendar
                         </Button>
                         
                         {appointment.status === "pending" && (
-                            <Button onClick={onConfirm} className="gap-2">
-                                <Check size={16} />
+                            <Button size="sm" onClick={onConfirm} className="gap-2 text-[12px] sm:text-[13px]">
+                                <Check size={14} />
                                 Confirmar
                             </Button>
                         )}
@@ -570,15 +795,15 @@ function AppointmentDetail({
                 )}
                 
                 {isToday && appointment.status === "confirmed" && (
-                    <Button onClick={onMarkCompleted} className="gap-2 bg-blue-600 hover:bg-blue-700">
-                        <Check size={16} />
-                        Marcar Completado
+                    <Button size="sm" onClick={onMarkCompleted} className="gap-2 bg-blue-600 text-[12px] hover:bg-blue-700 sm:text-[13px]">
+                        <Check size={14} />
+                        Completado
                     </Button>
                 )}
                 
                 {appointment.status !== "cancelled" && appointment.status !== "completed" && (
-                    <Button variant="outline" onClick={onCancel} className="gap-2 text-[var(--error)] hover:bg-red-50">
-                        <X size={16} />
+                    <Button variant="outline" size="sm" onClick={onCancel} className="gap-2 text-[12px] text-[var(--error)] hover:bg-red-50 sm:text-[13px]">
+                        <X size={14} />
                         Cancelar
                     </Button>
                 )}
@@ -586,6 +811,8 @@ function AppointmentDetail({
         </div>
     );
 }
+
+// ==================== MODALES ====================
 
 function CreateAppointmentModal({ 
     isOpen, 
@@ -604,12 +831,9 @@ function CreateAppointmentModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div 
-                className="absolute inset-0 bg-black/50"
-                onClick={onClose}
-            />
-            <Card className="relative z-10 max-h-[90vh] w-full max-w-lg animate-in fade-in-0 zoom-in-95 overflow-y-auto p-6">
-                <div className="mb-6 flex items-center justify-between">
+            <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+            <Card className="relative z-10 max-h-[90vh] w-full max-w-lg animate-in fade-in-0 zoom-in-95 overflow-y-auto p-5 sm:p-6">
+                <div className="mb-5 flex items-center justify-between sm:mb-6">
                     <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
                         Nuevo Turno
                     </h2>
@@ -619,7 +843,6 @@ function CreateAppointmentModal({
                 </div>
 
                 <div className="space-y-4">
-                    {/* Cliente */}
                     <div>
                         <label className="text-[12px] font-medium text-[var(--muted-foreground)]">
                             Cliente
@@ -628,7 +851,7 @@ function CreateAppointmentModal({
                             <input
                                 type="text"
                                 placeholder="Buscar cliente existente..."
-                                className="flex-1 rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
+                                className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
                             />
                             <Button variant="outline" size="sm">
                                 <Plus size={16} />
@@ -636,7 +859,6 @@ function CreateAppointmentModal({
                         </div>
                     </div>
 
-                    {/* Servicio */}
                     <div>
                         <label className="text-[12px] font-medium text-[var(--muted-foreground)]">
                             Servicio
@@ -644,7 +866,7 @@ function CreateAppointmentModal({
                         <select
                             value={selectedService}
                             onChange={(e) => setSelectedService(e.target.value)}
-                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
+                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
                         >
                             <option value="">Seleccionar servicio...</option>
                             {services.map((service) => (
@@ -655,8 +877,7 @@ function CreateAppointmentModal({
                         </select>
                     </div>
 
-                    {/* Fecha y Hora */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="text-[12px] font-medium text-[var(--muted-foreground)]">
                                 Fecha
@@ -665,7 +886,7 @@ function CreateAppointmentModal({
                                 type="date"
                                 value={selectedDate}
                                 onChange={(e) => setSelectedDate(e.target.value)}
-                                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
+                                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
                             />
                         </div>
                         <div>
@@ -675,61 +896,45 @@ function CreateAppointmentModal({
                             <select
                                 value={selectedTime}
                                 onChange={(e) => setSelectedTime(e.target.value)}
-                                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
+                                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
                             >
                                 <option value="">Seleccionar...</option>
-                                <option value="09:00">09:00</option>
-                                <option value="09:30">09:30</option>
-                                <option value="10:00">10:00</option>
-                                <option value="10:30">10:30</option>
-                                <option value="11:00">11:00</option>
-                                <option value="11:30">11:30</option>
-                                <option value="12:00">12:00</option>
-                                <option value="14:00">14:00</option>
-                                <option value="14:30">14:30</option>
-                                <option value="15:00">15:00</option>
-                                <option value="15:30">15:30</option>
-                                <option value="16:00">16:00</option>
-                                <option value="16:30">16:30</option>
-                                <option value="17:00">17:00</option>
-                                <option value="17:30">17:30</option>
-                                <option value="18:00">18:00</option>
+                                {["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"].map(time => (
+                                    <option key={time} value={time}>{time}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
 
-                    {/* Resumen del servicio */}
                     {selectedServiceData && (
-                        <div className="rounded-lg bg-[var(--muted)]/50 p-4">
+                        <div className="rounded-lg bg-[var(--muted)]/50 p-3">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-[14px] font-medium text-[var(--card-foreground)]">
+                                    <p className="text-[13px] font-medium text-[var(--card-foreground)]">
                                         {selectedServiceData.name}
                                     </p>
-                                    <p className="text-[12px] text-[var(--muted-foreground)]">
+                                    <p className="text-[11px] text-[var(--muted-foreground)]">
                                         Duración: {selectedServiceData.duration}
                                     </p>
                                 </div>
-                                <p className="text-[16px] font-semibold text-[var(--primary)]">
+                                <p className="text-[15px] font-semibold text-[var(--primary)]">
                                     ${selectedServiceData.price}
                                 </p>
                             </div>
                         </div>
                     )}
 
-                    {/* Notas */}
                     <div>
                         <label className="text-[12px] font-medium text-[var(--muted-foreground)]">
                             Notas (opcional)
                         </label>
                         <textarea
                             placeholder="Información adicional..."
-                            rows={3}
-                            className="mt-1 w-full resize-none rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
+                            rows={2}
+                            className="mt-1 w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
                         />
                     </div>
 
-                    {/* Opciones adicionales */}
                     <div className="flex items-center gap-3">
                         <input
                             type="checkbox"
@@ -737,13 +942,13 @@ function CreateAppointmentModal({
                             className="h-4 w-4 rounded border-[var(--border)]"
                             defaultChecked
                         />
-                        <label htmlFor="sendReminder" className="text-[13px] text-[var(--card-foreground)]">
+                        <label htmlFor="sendReminder" className="text-[12px] text-[var(--card-foreground)]">
                             Enviar recordatorio automático (24hs antes)
                         </label>
                     </div>
                 </div>
 
-                <div className="mt-6 flex gap-3">
+                <div className="mt-5 flex gap-3 sm:mt-6">
                     <Button variant="outline" className="flex-1" onClick={onClose}>
                         Cancelar
                     </Button>
@@ -769,12 +974,9 @@ function RescheduleModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div 
-                className="absolute inset-0 bg-black/50"
-                onClick={onClose}
-            />
-            <Card className="relative z-10 w-full max-w-md animate-in fade-in-0 zoom-in-95 p-6">
-                <div className="mb-6 flex items-center justify-between">
+            <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+            <Card className="relative z-10 w-full max-w-md animate-in fade-in-0 zoom-in-95 p-5 sm:p-6">
+                <div className="mb-5 flex items-center justify-between sm:mb-6">
                     <h2 className="text-lg font-semibold text-[var(--card-foreground)]">
                         Reagendar Turno
                     </h2>
@@ -790,52 +992,47 @@ function RescheduleModal({
                         </AvatarFallback>
                     </Avatar>
                     <div>
-                        <p className="text-[14px] font-medium text-[var(--card-foreground)]">
+                        <p className="text-[13px] font-medium text-[var(--card-foreground)]">
                             {appointment.clientName}
                         </p>
-                        <p className="text-[12px] text-[var(--muted-foreground)]">
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
                             {appointment.service}
                         </p>
                     </div>
                 </div>
 
                 <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="text-[12px] font-medium text-[var(--muted-foreground)]">
                                 Nueva Fecha
                             </label>
                             <input
                                 type="date"
-                                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
+                                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
                             />
                         </div>
                         <div>
                             <label className="text-[12px] font-medium text-[var(--muted-foreground)]">
                                 Nueva Hora
                             </label>
-                            <select
-                                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
-                            >
+                            <select className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]">
                                 <option value="">Seleccionar...</option>
-                                <option value="09:00">09:00</option>
-                                <option value="10:00">10:00</option>
-                                <option value="11:00">11:00</option>
-                                <option value="14:00">14:00</option>
-                                <option value="15:00">15:00</option>
-                                <option value="16:00">16:00</option>
+                                {["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"].map(time => (
+                                    <option key={time} value={time}>{time}</option>
+                                ))}
                             </select>
                         </div>
                     </div>
 
                     <div>
                         <label className="text-[12px] font-medium text-[var(--muted-foreground)]">
-                            Motivo del cambio (opcional)
+                            Motivo (opcional)
                         </label>
                         <textarea
                             placeholder="Ej: Solicitud del cliente..."
                             rows={2}
-                            className="mt-1 w-full resize-none rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
+                            className="mt-1 w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
                         />
                     </div>
 
@@ -846,13 +1043,13 @@ function RescheduleModal({
                             className="h-4 w-4 rounded border-[var(--border)]"
                             defaultChecked
                         />
-                        <label htmlFor="notifyClient" className="text-[13px] text-[var(--card-foreground)]">
+                        <label htmlFor="notifyClient" className="text-[12px] text-[var(--card-foreground)]">
                             Notificar al cliente por WhatsApp
                         </label>
                     </div>
                 </div>
 
-                <div className="mt-6 flex gap-3">
+                <div className="mt-5 flex gap-3 sm:mt-6">
                     <Button variant="outline" className="flex-1" onClick={onClose}>
                         Cancelar
                     </Button>
@@ -878,12 +1075,9 @@ function CancelModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div 
-                className="absolute inset-0 bg-black/50"
-                onClick={onClose}
-            />
-            <Card className="relative z-10 w-full max-w-md animate-in fade-in-0 zoom-in-95 p-6">
-                <div className="mb-6 flex items-center justify-between">
+            <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+            <Card className="relative z-10 w-full max-w-md animate-in fade-in-0 zoom-in-95 p-5 sm:p-6">
+                <div className="mb-5 flex items-center justify-between sm:mb-6">
                     <h2 className="text-lg font-semibold text-[var(--error)]">
                         Cancelar Turno
                     </h2>
@@ -899,31 +1093,29 @@ function CancelModal({
                         </AvatarFallback>
                     </Avatar>
                     <div>
-                        <p className="text-[14px] font-medium text-[var(--card-foreground)]">
+                        <p className="text-[13px] font-medium text-[var(--card-foreground)]">
                             {appointment.clientName}
                         </p>
-                        <p className="text-[12px] text-[var(--muted-foreground)]">
+                        <p className="text-[11px] text-[var(--muted-foreground)]">
                             {appointment.date} a las {appointment.time}
                         </p>
                     </div>
                 </div>
 
-                <p className="mb-4 text-[14px] text-[var(--muted-foreground)]">
-                    ¿Estás seguro de que querés cancelar este turno? Esta acción no se puede deshacer.
+                <p className="mb-4 text-[13px] text-[var(--muted-foreground)]">
+                    ¿Estás seguro de que querés cancelar este turno?
                 </p>
 
                 <div className="space-y-4">
                     <div>
                         <label className="text-[12px] font-medium text-[var(--muted-foreground)]">
-                            Motivo de cancelación
+                            Motivo
                         </label>
-                        <select
-                            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
-                        >
+                        <select className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-[14px] outline-none transition-colors focus:border-[var(--primary)]">
                             <option value="">Seleccionar motivo...</option>
                             <option value="client-request">Solicitud del cliente</option>
                             <option value="no-show">No se presentó</option>
-                            <option value="provider-unavailable">Proveedor no disponible</option>
+                            <option value="provider-unavailable">No disponible</option>
                             <option value="other">Otro motivo</option>
                         </select>
                     </div>
@@ -935,13 +1127,13 @@ function CancelModal({
                             className="h-4 w-4 rounded border-[var(--border)]"
                             defaultChecked
                         />
-                        <label htmlFor="notifyCancel" className="text-[13px] text-[var(--card-foreground)]">
+                        <label htmlFor="notifyCancel" className="text-[12px] text-[var(--card-foreground)]">
                             Notificar al cliente
                         </label>
                     </div>
                 </div>
 
-                <div className="mt-6 flex gap-3">
+                <div className="mt-5 flex gap-3 sm:mt-6">
                     <Button variant="outline" className="flex-1" onClick={onClose}>
                         Volver
                     </Button>
@@ -954,17 +1146,30 @@ function CancelModal({
     );
 }
 
+// ==================== COMPONENTE PRINCIPAL ====================
+
 export function AppointmentsView({ onBack }: AppointmentsViewProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
-    const [dateFilter, setDateFilter] = useState<FilterDate>("all");
+    const [viewTab, setViewTab] = useState<ViewTab>("upcoming");
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showRescheduleModal, setShowRescheduleModal] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [appointmentToAction, setAppointmentToAction] = useState<Appointment | null>(null);
 
-    const filteredAppointments = mockAppointments.filter(apt => {
+    // Filtrar turnos según la vista
+    const upcomingAppointments = mockAppointments.filter(apt => 
+        apt.date === "Hoy" || apt.date === "Mañana"
+    );
+    
+    const historyAppointments = mockAppointments.filter(apt => 
+        apt.date === "Ayer" || apt.date.includes("/")
+    );
+
+    const currentAppointments = viewTab === "upcoming" ? upcomingAppointments : historyAppointments;
+
+    const filteredAppointments = currentAppointments.filter(apt => {
         const matchesSearch = 
             apt.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
             apt.clientEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -972,12 +1177,7 @@ export function AppointmentsView({ onBack }: AppointmentsViewProps) {
         
         const matchesStatus = statusFilter === "all" || apt.status === statusFilter;
         
-        let matchesDate = true;
-        if (dateFilter === "today") matchesDate = apt.date === "Hoy";
-        else if (dateFilter === "tomorrow") matchesDate = apt.date === "Mañana";
-        else if (dateFilter === "past") matchesDate = apt.date === "Ayer" || apt.date.includes("/");
-        
-        return matchesSearch && matchesStatus && matchesDate;
+        return matchesSearch && matchesStatus;
     });
 
     // Agrupar por fecha
@@ -985,31 +1185,18 @@ export function AppointmentsView({ onBack }: AppointmentsViewProps) {
     const tomorrowAppointments = filteredAppointments.filter(a => a.date === "Mañana");
     const pastAppointments = filteredAppointments.filter(a => a.date === "Ayer" || a.date.includes("/"));
 
-    const handleConfirm = (apt: Appointment) => {
-        console.log("Confirmar:", apt.id);
-    };
-
+    const handleConfirm = (apt: Appointment) => console.log("Confirmar:", apt.id);
     const handleReschedule = (apt: Appointment) => {
         setAppointmentToAction(apt);
         setShowRescheduleModal(true);
     };
-
     const handleCancel = (apt: Appointment) => {
         setAppointmentToAction(apt);
         setShowCancelModal(true);
     };
-
-    const handleSendReminder = (apt: Appointment) => {
-        console.log("Enviar recordatorio:", apt.id);
-    };
-
-    const handleMarkCompleted = (apt: Appointment) => {
-        console.log("Marcar completado:", apt.id);
-    };
-
-    const handleMarkNoShow = (apt: Appointment) => {
-        console.log("Marcar no-show:", apt.id);
-    };
+    const handleSendReminder = (apt: Appointment) => console.log("Enviar recordatorio:", apt.id);
+    const handleMarkCompleted = (apt: Appointment) => console.log("Marcar completado:", apt.id);
+    const handleMarkNoShow = (apt: Appointment) => console.log("Marcar no-show:", apt.id);
 
     if (selectedAppointment) {
         return (
@@ -1028,79 +1215,100 @@ export function AppointmentsView({ onBack }: AppointmentsViewProps) {
     return (
         <div className="animate-in fade-in-0 slide-in-from-right-4 duration-300">
             {/* Header */}
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-4">
+            <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                     <Button 
                         variant="outline" 
                         size="icon" 
                         onClick={onBack}
-                        className="h-10 w-10 rounded-xl"
+                        className="h-9 w-9 rounded-xl sm:h-10 sm:w-10"
                     >
                         <ArrowLeft size={18} />
                     </Button>
                     <div>
-                        <h1 className="text-xl font-bold text-[var(--foreground)] sm:text-2xl">
-                            Turnos
+                        <h1 className="text-lg font-bold text-[var(--foreground)] sm:text-xl">
+                            Gestión de Turnos
                         </h1>
-                        <p className="text-[13px] text-[var(--muted-foreground)]">
-                            {filteredAppointments.length} turnos encontrados
+                        <p className="text-[12px] text-[var(--muted-foreground)] sm:text-[13px]">
+                            Optimizá tu agenda y maximizá ingresos
                         </p>
                     </div>
                 </div>
 
                 <Button 
                     onClick={() => setShowCreateModal(true)}
+                    size="sm"
                     className="gap-2"
                 >
-                    <Plus size={18} />
+                    <Plus size={16} />
                     Nuevo Turno
                 </Button>
             </div>
 
+            {/* Métricas */}
+            <div className="mb-5 grid grid-cols-2 gap-3 sm:mb-6 lg:grid-cols-4 lg:gap-4">
+                {metricsData.map((metric) => (
+                    <AppointmentMetricCard key={metric.id} metric={metric} />
+                ))}
+            </div>
+
+            {/* Tabs de Vista */}
+            <div className="mb-4 flex items-center gap-2">
+                <button
+                    onClick={() => setViewTab("upcoming")}
+                    className={cn(
+                        "flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all",
+                        viewTab === "upcoming"
+                            ? "bg-[var(--primary)] text-white shadow-sm"
+                            : "bg-[var(--muted)]/60 text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                    )}
+                >
+                    <CalendarDays size={16} />
+                    Próximos
+                    <Badge variant={viewTab === "upcoming" ? "secondary" : "outline"} className="ml-1 h-5 px-1.5 text-[10px]">
+                        {upcomingAppointments.length}
+                    </Badge>
+                </button>
+                <button
+                    onClick={() => setViewTab("history")}
+                    className={cn(
+                        "flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all",
+                        viewTab === "history"
+                            ? "bg-[var(--primary)] text-white shadow-sm"
+                            : "bg-[var(--muted)]/60 text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                    )}
+                >
+                    <History size={16} />
+                    Historial
+                    <Badge variant={viewTab === "history" ? "secondary" : "outline"} className="ml-1 h-5 px-1.5 text-[10px]">
+                        {historyAppointments.length}
+                    </Badge>
+                </button>
+            </div>
+
             {/* Search & Filters */}
-            <Card className="mb-6 p-4">
+            <Card className="mb-4 p-3 sm:mb-5 sm:p-4">
                 <div className="flex flex-col gap-3">
                     <div className="relative">
-                        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" />
                         <input
                             type="text"
                             placeholder="Buscar por nombre, email o servicio..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full rounded-lg border border-[var(--border)] bg-white py-2.5 pl-10 pr-4 text-[14px] outline-none transition-colors focus:border-[var(--primary)]"
+                            className="w-full rounded-lg border border-[var(--border)] bg-[var(--card)] py-2 pl-9 pr-4 text-[13px] outline-none transition-colors focus:border-[var(--primary)]"
                         />
-                    </div>
-                    
-                    {/* Date Filters */}
-                    <div className="flex flex-wrap gap-1">
-                        <span className="mr-2 self-center text-[12px] text-[var(--muted-foreground)]">Fecha:</span>
-                        {(["all", "today", "tomorrow", "past"] as FilterDate[]).map((date) => (
-                            <button
-                                key={date}
-                                onClick={() => setDateFilter(date)}
-                                className={cn(
-                                    "rounded-lg px-3 py-1.5 text-[12px] font-medium transition-all duration-200",
-                                    dateFilter === date
-                                        ? "bg-[var(--primary)] text-white shadow-sm"
-                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/60"
-                                )}
-                            >
-                                {date === "all" ? "Todos" : 
-                                 date === "today" ? "Hoy" : 
-                                 date === "tomorrow" ? "Mañana" : "Pasados"}
-                            </button>
-                        ))}
                     </div>
                     
                     {/* Status Filters */}
                     <div className="flex flex-wrap gap-1">
-                        <span className="mr-2 self-center text-[12px] text-[var(--muted-foreground)]">Estado:</span>
+                        <span className="mr-1 self-center text-[11px] text-[var(--muted-foreground)]">Estado:</span>
                         {(["all", "confirmed", "pending", "completed", "cancelled", "no-show"] as FilterStatus[]).map((status) => (
                             <button
                                 key={status}
                                 onClick={() => setStatusFilter(status)}
                                 className={cn(
-                                    "rounded-lg px-3 py-1.5 text-[12px] font-medium transition-all duration-200",
+                                    "rounded-lg px-2 py-1 text-[11px] font-medium transition-all duration-200",
                                     statusFilter === status
                                         ? "bg-[var(--primary)] text-white shadow-sm"
                                         : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]/60"
@@ -1113,81 +1321,84 @@ export function AppointmentsView({ onBack }: AppointmentsViewProps) {
                 </div>
             </Card>
 
-            {/* Appointments List */}
-            <div className="space-y-6">
-                {/* Hoy */}
-                {todayAppointments.length > 0 && (
-                    <div>
-                        <div className="mb-3 flex items-center gap-2">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-                                Hoy
-                            </span>
-                            <Badge variant="secondary" className="text-[10px]">
-                                {todayAppointments.length}
-                            </Badge>
-                            <div className="h-px flex-1 bg-[var(--border)]" />
-                        </div>
-                        <div className="space-y-3">
-                            {todayAppointments.map((apt) => (
-                                <AppointmentCard 
-                                    key={apt.id} 
-                                    appointment={apt}
-                                    onClick={() => setSelectedAppointment(apt)}
-                                    onConfirm={() => handleConfirm(apt)}
-                                    onCancel={() => handleCancel(apt)}
-                                    onReschedule={() => handleReschedule(apt)}
-                                    onSendReminder={() => handleSendReminder(apt)}
-                                    onMarkCompleted={() => handleMarkCompleted(apt)}
-                                    onMarkNoShow={() => handleMarkNoShow(apt)}
-                                />
-                            ))}
-                        </div>
-                    </div>
+            {/* Lista de Turnos */}
+            <div className="space-y-5">
+                {/* Vista Próximos */}
+                {viewTab === "upcoming" && (
+                    <>
+                        {todayAppointments.length > 0 && (
+                            <div>
+                                <div className="mb-2 flex items-center gap-2 sm:mb-3">
+                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[11px]">
+                                        Hoy
+                                    </span>
+                                    <Badge variant="secondary" className="h-4 px-1.5 text-[9px]">
+                                        {todayAppointments.length}
+                                    </Badge>
+                                    <div className="h-px flex-1 bg-[var(--border)]" />
+                                </div>
+                                <div className="space-y-2 sm:space-y-3">
+                                    {todayAppointments.map((apt) => (
+                                        <AppointmentCard 
+                                            key={apt.id} 
+                                            appointment={apt}
+                                            onClick={() => setSelectedAppointment(apt)}
+                                            onConfirm={() => handleConfirm(apt)}
+                                            onCancel={() => handleCancel(apt)}
+                                            onReschedule={() => handleReschedule(apt)}
+                                            onSendReminder={() => handleSendReminder(apt)}
+                                            onMarkCompleted={() => handleMarkCompleted(apt)}
+                                            onMarkNoShow={() => handleMarkNoShow(apt)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {tomorrowAppointments.length > 0 && (
+                            <div>
+                                <div className="mb-2 flex items-center gap-2 sm:mb-3">
+                                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[11px]">
+                                        Mañana
+                                    </span>
+                                    <Badge variant="secondary" className="h-4 px-1.5 text-[9px]">
+                                        {tomorrowAppointments.length}
+                                    </Badge>
+                                    <div className="h-px flex-1 bg-[var(--border)]" />
+                                </div>
+                                <div className="space-y-2 sm:space-y-3">
+                                    {tomorrowAppointments.map((apt) => (
+                                        <AppointmentCard 
+                                            key={apt.id} 
+                                            appointment={apt}
+                                            onClick={() => setSelectedAppointment(apt)}
+                                            onConfirm={() => handleConfirm(apt)}
+                                            onCancel={() => handleCancel(apt)}
+                                            onReschedule={() => handleReschedule(apt)}
+                                            onSendReminder={() => handleSendReminder(apt)}
+                                            onMarkCompleted={() => handleMarkCompleted(apt)}
+                                            onMarkNoShow={() => handleMarkNoShow(apt)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
 
-                {/* Mañana */}
-                {tomorrowAppointments.length > 0 && (
+                {/* Vista Historial */}
+                {viewTab === "history" && pastAppointments.length > 0 && (
                     <div>
-                        <div className="mb-3 flex items-center gap-2">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-                                Mañana
+                        <div className="mb-2 flex items-center gap-2 sm:mb-3">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] sm:text-[11px]">
+                                Turnos Anteriores
                             </span>
-                            <Badge variant="secondary" className="text-[10px]">
-                                {tomorrowAppointments.length}
-                            </Badge>
-                            <div className="h-px flex-1 bg-[var(--border)]" />
-                        </div>
-                        <div className="space-y-3">
-                            {tomorrowAppointments.map((apt) => (
-                                <AppointmentCard 
-                                    key={apt.id} 
-                                    appointment={apt}
-                                    onClick={() => setSelectedAppointment(apt)}
-                                    onConfirm={() => handleConfirm(apt)}
-                                    onCancel={() => handleCancel(apt)}
-                                    onReschedule={() => handleReschedule(apt)}
-                                    onSendReminder={() => handleSendReminder(apt)}
-                                    onMarkCompleted={() => handleMarkCompleted(apt)}
-                                    onMarkNoShow={() => handleMarkNoShow(apt)}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Pasados */}
-                {pastAppointments.length > 0 && (
-                    <div>
-                        <div className="mb-3 flex items-center gap-2">
-                            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-                                Anteriores
-                            </span>
-                            <Badge variant="secondary" className="text-[10px]">
+                            <Badge variant="secondary" className="h-4 px-1.5 text-[9px]">
                                 {pastAppointments.length}
                             </Badge>
                             <div className="h-px flex-1 bg-[var(--border)]" />
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-2 sm:space-y-3">
                             {pastAppointments.map((apt) => (
                                 <AppointmentCard 
                                     key={apt.id} 
@@ -1207,28 +1418,34 @@ export function AppointmentsView({ onBack }: AppointmentsViewProps) {
 
                 {/* Empty State */}
                 {filteredAppointments.length === 0 && (
-                    <Card className="flex flex-col items-center justify-center p-12 text-center">
-                        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--muted)]/60">
-                            <Calendar size={24} className="text-[var(--muted-foreground)]" />
+                    <Card className="flex flex-col items-center justify-center p-8 text-center sm:p-12">
+                        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--muted)]/60 sm:mb-4 sm:h-16 sm:w-16">
+                            <Calendar size={22} className="text-[var(--muted-foreground)]" />
                         </div>
-                        <p className="text-[15px] font-medium text-[var(--card-foreground)]">
-                            No se encontraron turnos
+                        <p className="text-[14px] font-medium text-[var(--card-foreground)] sm:text-[15px]">
+                            {viewTab === "upcoming" ? "No hay turnos próximos" : "No hay turnos en el historial"}
                         </p>
-                        <p className="mt-1 text-[13px] text-[var(--muted-foreground)]">
-                            Intentá con otros filtros o creá un nuevo turno
+                        <p className="mt-1 text-[12px] text-[var(--muted-foreground)] sm:text-[13px]">
+                            {viewTab === "upcoming" 
+                                ? "Creá un nuevo turno para empezar" 
+                                : "Los turnos completados aparecerán aquí"
+                            }
                         </p>
-                        <Button 
-                            onClick={() => setShowCreateModal(true)}
-                            className="mt-4 gap-2"
-                        >
-                            <Plus size={16} />
-                            Crear Turno
-                        </Button>
+                        {viewTab === "upcoming" && (
+                            <Button 
+                                onClick={() => setShowCreateModal(true)}
+                                size="sm"
+                                className="mt-4 gap-2"
+                            >
+                                <Plus size={14} />
+                                Crear Turno
+                            </Button>
+                        )}
                     </Card>
                 )}
             </div>
 
-            {/* Modals */}
+            {/* Modales */}
             <CreateAppointmentModal 
                 isOpen={showCreateModal} 
                 onClose={() => setShowCreateModal(false)} 
